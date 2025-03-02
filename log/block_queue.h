@@ -152,7 +152,10 @@ public:
 	bool pop(T &item) {
 		m_mutex.lock();
 
+		//多个消费者需要用while判断
 		while (m_size <= 0) {
+			//当重新抢到互斥锁时
+			//pthread_cond_wait返回0
 			if (!m_cond.wait(m_mutex.get())) {
 				m_mutex.unlock();
 				return false;
