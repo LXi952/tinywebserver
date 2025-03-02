@@ -17,8 +17,10 @@ class threadpool {
 public:
 	//thread_number	线程池中线程数量
 	//max_requests	请求队列中最多允许的、等待处理的请求的数量
+	//connPool 连接池指针
 	threadpool(int actor_model, connection_pool *connPool, int thread_number = 8, int max_requests = 10000);
 	~threadpool();
+	//向请求对列插入任务请求
 	bool append(T *request, int state);
 	bool append_p(T *request);
 
@@ -48,15 +50,19 @@ threadpool<T>::threadpool(int actor_model, connection_pool *connPool, int thread
 		throw std::exception();
 	}
 
+	//线程id初始化
 	m_threads = new pthread_t[m_thread_number];
 	if (!m_threads) {
 		throw std::exception();
 	}
 	for (int i = 0; i < thread_number; ++i) {
+		//循环创建线程，并将工作线程按要求进行运行
 		if (pthread_create(m_threads + i, NULL, worker, this) != 0) {
 			delete[] m_threads;
 			throw std::exception();
 		}
+		//将线程进行分离
+		//不用单独对工作线程进行回收
 		if (pthread_detach(m_threads[i])) {
 			delete[] m_threads;
 			throw std::exception();
@@ -111,6 +117,7 @@ void *threadpool<T>::worker(void *arg) {
 template<typename T>
 void threadpool<T>::run() {
 	while (true) {
+		//信号量等待
 		m_queuestat.wait();
 		m_queuelocker.lock();
 
