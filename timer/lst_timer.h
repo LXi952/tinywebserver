@@ -24,10 +24,15 @@ public:
 	util_timer() : prev(NULL), next(NULL) {}
 
 public:
+	//超时时间
 	time_t expire;
+	//回调函数
 	void (* cb_func)(client_data *);
+	//连接资源
 	client_data *user_data;
+	//前向定时器
 	util_timer *prev;
+	//后继定时器
 	util_timer *next;
 };
 
