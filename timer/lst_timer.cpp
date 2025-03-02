@@ -170,18 +170,24 @@ void Utils::sig_handler(int sig) {
 	//为保证函数的可重入性，保留原来的error
 	int save_errno = errno;
 	int msg = sig;
+	
+	//将信号值从管道写端写入
 	send(u_pipefd[1], (char *)&msg, 1, 0);
 	errno = save_errno;
 }
 
 //设置信号函数
 void Utils::addsig(int sig, void(handler)(int), bool restart) {
+	//创建sigaction结构体变量
 	struct sigaction sa;
 	memset(&sa, '\0', sizeof(sa));
+	
+	//信号处理函数仅仅发送信号值，不做对应的逻辑处理
 	sa.sa_handler = handler;
 	if (restart) {
 		sa.sa_flags |= SA_RESTART;
 	}
+	//将所有信号添加到信号集中
 	sigfillset(&sa.sa_mask);
 	assert(sigaction(sig, &sa, NULL) != -1);
 }
