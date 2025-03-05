@@ -6,6 +6,7 @@
  ************************************************************************/
 
 #include "./config/config.h"
+#include "./webserwer/webserwer.h"
 
 int main(int argc, char* argv[]) {
 	//数据库信息 登录名 密码 库名
